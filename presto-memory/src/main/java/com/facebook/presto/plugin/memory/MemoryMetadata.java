@@ -34,6 +34,7 @@ import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.SchemaTablePrefix;
+import com.facebook.presto.spi.TableHandle;
 import com.facebook.presto.spi.ViewNotFoundException;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.facebook.presto.spi.connector.ConnectorOutputMetadata;
@@ -126,10 +127,12 @@ public class MemoryMetadata
     @Override
     public synchronized ConnectorTableHandle getTableHandle(ConnectorSession session, SchemaTableName schemaTableName)
     {
+
         Long tableId = tableIds.get(schemaTableName);
         if (tableId == null) {
             return null;
         }
+
         return tables.get(tableId);
     }
 
@@ -224,7 +227,6 @@ public class MemoryMetadata
                 tableMetadata);
         tables.put(table.getTableId(), table);
         tableDataFragments.put(table.getTableId(), new HashMap<>());
-
         return new MemoryOutputTableHandle(table, ImmutableSet.copyOf(tableIds.values()));
     }
 

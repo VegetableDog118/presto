@@ -186,7 +186,8 @@ public class DispatchManager
 
             // prepare query
             WarningCollector warningCollector = warningCollectorFactory.create(getWarningHandlingLevel(session));
-            preparedQuery = queryPreparer.prepareQuery(session, query, warningCollector);
+            preparedQuery = queryPreparer.prepareQuery(session, query, warningCollector);//用SQL
+            // parser进行解析
             query = preparedQuery.getFormattedQuery().orElse(query);
 
             // select resource group

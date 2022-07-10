@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 public class MemoryModule
         implements Module
 {
+
     private final String connectorId;
     private final TypeManager typeManager;
     private final NodeManager nodeManager;
