@@ -1,11 +1,13 @@
 package com.lfcs.datasourcePicking.CacheOperation;
 
+import com.lfcs.datasourcePicking.ViewManagement.View;
+
 public interface CacheOperation {
 
   //remove the view if the memory size is not enough
-  void remove();
+  View remove();
 
   //add a view into the cache
-  void addView();
+  void addView(View view);
 
 }

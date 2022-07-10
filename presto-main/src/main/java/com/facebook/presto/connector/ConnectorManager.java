@@ -96,7 +96,7 @@ public class ConnectorManager
     private static final Logger log = Logger.get(ConnectorManager.class);
 
     private final MetadataManager metadataManager;
-    private final CatalogManager catalogManager;
+    public final CatalogManager catalogManager;
     private final AccessControlManager accessControlManager;
     private final SplitManager splitManager;
     private final PageSourceManager pageSourceManager;
@@ -619,5 +619,6 @@ public class ConnectorManager
         {
             return analyzeProperties;
         }
+
     }
 }

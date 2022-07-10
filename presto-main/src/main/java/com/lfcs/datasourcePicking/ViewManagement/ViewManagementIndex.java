@@ -19,7 +19,7 @@ public class ViewManagementIndex {
 
 
   //call this method when we store a
-  private boolean storeView(View view){
+  public boolean storeView(View view){
     if(!tableNameViewMap.containsKey(view.getTableName())){
       tableNameViewMap.put(view.getTableName(), view.getViewName());
     }
@@ -38,7 +38,7 @@ public class ViewManagementIndex {
    * @param viewName
    * @return
    */
-  private TreeSet<View> getViews(String viewName){
+  public TreeSet<View> getViews(String viewName){
     if(viewMap.containsKey(viewName)){
       return viewMap.get(viewName);
     }else{
@@ -51,7 +51,7 @@ public class ViewManagementIndex {
    * @param tableName
    * @return
    */
-  private boolean dropViews(String tableName){
+  public boolean dropViews(String tableName){
     //table -> view ->set -> delete
     String viewName = "";
     if(tableNameViewMap.contains(tableName)){

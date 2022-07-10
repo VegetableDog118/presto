@@ -302,7 +302,7 @@ public class LocalQueryRunner
     private final ExpressionCompiler expressionCompiler;
     private final JoinFilterFunctionCompiler joinFilterFunctionCompiler;
     private final JoinCompiler joinCompiler;
-    private final ConnectorManager connectorManager;
+    public final ConnectorManager connectorManager;
     private final HistoryBasedPlanStatisticsManager historyBasedPlanStatisticsManager;
     private final PluginManager pluginManager;
     private final ImmutableMap<Class<? extends Statement>, DataDefinitionTask<?>> dataDefinitionTask;
@@ -1058,5 +1058,9 @@ public class LocalQueryRunner
         {
             throw new UnsupportedOperationException();
         }
+    }
+
+    public ConnectorManager getConnectorManager() {
+        return connectorManager;
     }
 }

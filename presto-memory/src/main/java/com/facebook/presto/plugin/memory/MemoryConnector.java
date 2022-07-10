@@ -47,6 +47,7 @@ public class MemoryConnector
     @Override
     public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly)
     {
+
         return MemoryTransactionHandle.INSTANCE;
     }
 

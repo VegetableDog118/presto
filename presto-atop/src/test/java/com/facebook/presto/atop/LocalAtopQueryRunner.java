@@ -42,6 +42,7 @@ public final class LocalAtopQueryRunner
                 .build();
 
         LocalQueryRunner queryRunner = new LocalQueryRunner(session);
+        //
 
         try {
             AtopConnectorFactory connectorFactory = new AtopConnectorFactory(factoryClass, LocalAtopQueryRunner.class.getClassLoader());

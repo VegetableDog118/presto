@@ -48,9 +48,9 @@ public final class TableHandle
     }
 
     public TableHandle(
-            ConnectorId connectorId,
-            ConnectorTableHandle connectorHandle,
-            ConnectorTransactionHandle transaction,
+            ConnectorId connectorId,//solved
+            ConnectorTableHandle connectorHandle,//solved
+            ConnectorTransactionHandle transaction,//
             Optional<ConnectorTableLayoutHandle> layout,
             Optional<Supplier<TupleDomain<ColumnHandle>>> dynamicFilter)
     {
