@@ -1,12 +1,20 @@
 package com.lfcs.datasourcePicking.CacheOperation;
 
+import com.facebook.presto.sql.tree.CurrentTime;
 import com.lfcs.datasourcePicking.ViewManagement.View;
 import com.lfcs.datasourcePicking.ViewManagement.ViewManagement;
+
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.util.TablesNamesFinder;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.List;
 
 /*
 insert delete select update memory connector
@@ -95,25 +103,40 @@ public class MemoryConnectorOperation {
 
 
   private SqlCommand generateSqlCommand(String query){
-    String tableName = generateTableName(query);
+    String viewName = generateViewName(query);
+    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+    String tableName = generateTableNameInConnector(viewName,timestamp);
     String create = "CREATE TABLE memory.default." + tableName;
     String select = query;
     String command = create + "AS" + select;
     Timestamp ts = new Timestamp(System.currentTimeMillis());
-    View view = new View(generateViewName(query,ts),tableName,ts);
+    View view = new View(viewName,tableName,ts);
     SqlCommand sqlCommand = new SqlCommand(command,create,query,view);
     return sqlCommand;
   }
 
   /**
-   * Select a , b, c from t Table-abc
-   * @param sql
+   * Select a , b, c from t1 join t2 on
+   * Then the table name stored in meme Table-T1T2-timestamped
+   * @param
    * @return
    */
-  private String generateTableName(String sql){
+  private String generateTableNameInConnector(String viewName, Timestamp ts)  {
+    return viewName+ts;
+  }
 
 
-    
+  private String generateViewName(String sql){
+    net.sf.jsqlparser.statement.Statement statement = null;
+    try {
+      statement = CCJSqlParserUtil.parse(sql);
+    } catch (JSQLParserException e) {
+      e.printStackTrace();
+    }
+    Select selectStatement = (Select) statement;
+    TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+    List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
+
     String[] str = sql.split(" ");
     StringBuilder stringBuilderBuilder = new StringBuilder();
     boolean add = false;
@@ -129,11 +152,4 @@ public class MemoryConnectorOperation {
     }
     return "Table-"+stringBuilderBuilder.toString();
   }
-
-  private String generateViewName(String sql, Timestamp ts){
-    //Timestamp ts = new Timestamp(System.currentTimeMillis());
-    return generateTableName(sql) + ts;
-  }
-
-
 }
