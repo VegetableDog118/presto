@@ -38,6 +38,13 @@ import com.facebook.presto.spi.resourceGroups.QueryType;
 import com.facebook.presto.spi.resourceGroups.SelectionContext;
 import com.facebook.presto.spi.resourceGroups.SelectionCriteria;
 import com.facebook.presto.transaction.TransactionManager;
+import com.lfcs.datasourcePicking.CacheOperation.CacheOperation;
+import com.lfcs.datasourcePicking.CacheOperation.LRUCacheOperation;
+import com.lfcs.datasourcePicking.CacheOperation.MemoryConnectorOperation;
+import com.lfcs.datasourcePicking.CacheOperation.SqlCommand;
+import com.lfcs.datasourcePicking.ViewManagement.View;
+import com.lfcs.datasourcePicking.ViewManagement.ViewManagement;
+
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.weakref.jmx.Flatten;
@@ -47,6 +54,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -84,6 +92,10 @@ public class DispatchManager
     private final QueryTracker<DispatchQuery> queryTracker;
 
     private final QueryManagerStats stats = new QueryManagerStats();
+    
+    private static MemoryConnectorOperation memoryConnectorOperation =
+        new MemoryConnectorOperation(new LRUCacheOperation(),1000,new ViewManagement(),"");
+
 
     @Inject
     public DispatchManager(
@@ -99,7 +111,8 @@ public class DispatchManager
             SessionPropertyDefaults sessionPropertyDefaults,
             QueryManagerConfig queryManagerConfig,
             DispatchExecutor dispatchExecutor,
-            ClusterStatusSender clusterStatusSender)
+            ClusterStatusSender clusterStatusSender
+            )
     {
         this.queryIdGenerator = requireNonNull(queryIdGenerator, "queryIdGenerator is null");
         this.queryPreparer = requireNonNull(queryPreparer, "queryPreparer is null");
@@ -153,8 +166,8 @@ public class DispatchManager
         requireNonNull(query, "query is null");
         checkArgument(!query.isEmpty(), "query must not be empty string");
         checkArgument(!queryTracker.tryGetQuery(queryId).isPresent(), "query %s already exists", queryId);
-
         DispatchQueryCreationFuture queryCreationFuture = new DispatchQueryCreationFuture();
+
         boundedQueryExecutor.execute(() -> {
             try {
                 createQueryInternal(queryId, slug, retryCount, sessionContext, query, resourceGroupManager);
@@ -163,7 +176,18 @@ public class DispatchManager
                 queryCreationFuture.set(null);
             }
         });
+        if(isSelect(query)){
+            memoryConnectorOperation.addView(query);
+        }
         return queryCreationFuture;
+    }
+
+    private boolean isSelect(String sql){
+        if(sql.toLowerCase().startsWith("select")){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**

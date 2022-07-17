@@ -263,6 +263,14 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/com.github.jsqlparser/jsqlparser -->
+            <dependency>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>4.4</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>com.facebook.presto</groupId>
                 <artifactId>presto-plugin-toolkit</artifactId>

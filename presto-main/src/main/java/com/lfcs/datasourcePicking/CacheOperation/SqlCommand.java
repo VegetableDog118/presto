@@ -9,5 +9,12 @@ public class SqlCommand {
 
   String selectSql;
 
-  View view; //
+  View view;
+
+  public SqlCommand(String sql, String createSql, String selectSql, View view) {
+    this.sql = sql;
+    this.createSql = createSql;
+    this.selectSql = selectSql;
+    this.view = view;
+  }
 }

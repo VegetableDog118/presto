@@ -32,6 +32,8 @@ import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.QueryId;
 import com.facebook.presto.spi.tracing.TracerProvider;
 import com.facebook.presto.sql.parser.SqlParserOptions;
+import com.lfcs.datasourcePicking.CacheOperation.MemoryConnectorOperation;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
@@ -129,6 +131,8 @@ public class QueuedStatementResource
     private final QueryBlockingRateLimiter queryRateLimiter;
     private final TimeStat queuedRateLimiterBlockTime = new TimeStat();
 
+    private final MemoryConnectorOperation memoryConnectorOperation;
+
     @Inject
     public QueuedStatementResource(
             DispatchManager dispatchManager,
@@ -138,7 +142,9 @@ public class QueuedStatementResource
             ServerConfig serverConfig,
             TracerProvider tracerProvider,
             SessionPropertyManager sessionPropertyManager,
-            QueryBlockingRateLimiter queryRateLimiter)
+            QueryBlockingRateLimiter queryRateLimiter,
+            MemoryConnectorOperation memoryConnectorOperation
+    )
     {
         this.dispatchManager = requireNonNull(dispatchManager, "dispatchManager is null");
         this.queryResultsProvider = queryResultsProvider;
@@ -151,6 +157,7 @@ public class QueuedStatementResource
         this.sessionPropertyManager = sessionPropertyManager;
 
         this.queryRateLimiter = requireNonNull(queryRateLimiter, "queryRateLimiter is null");
+        this.memoryConnectorOperation = memoryConnectorOperation;
 
         queryPurger.scheduleWithFixedDelay(
                 () -> {

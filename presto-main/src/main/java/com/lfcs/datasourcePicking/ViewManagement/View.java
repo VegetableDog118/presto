@@ -52,4 +52,11 @@ public class View implements Comparable{
   public Timestamp getTimestamp() {
     return timestamp;
   }
+
+
+  public View(String viewName, String tableName,  Timestamp timestamp) {
+    this.viewName = viewName;
+    this.tableName = tableName;
+    this.timestamp = timestamp;
+  }
 }
