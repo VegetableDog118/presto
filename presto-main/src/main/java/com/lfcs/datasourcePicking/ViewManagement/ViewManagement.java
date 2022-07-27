@@ -15,6 +15,8 @@ import com.facebook.presto.sql.planner.plan.IndexSourceNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import org.glassfish.jersey.internal.util.collection.Views;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,13 +36,10 @@ public class ViewManagement {
   ViewManagementIndex viewIndex = ViewManagementIndex.getInstance();
 
   int cacheSize = 0;
-  private Session session;
-  private Metadata metadata;
-  private PlanVariableAllocator variableAllocator;
+  public   Session session;
+  public    Metadata metadata;
+  public  PlanVariableAllocator variableAllocator;
   //private
-
-
-
   /**
    * This method is called when we have insert cache operation in Memory Connector Operation
    * @param view
@@ -81,8 +80,6 @@ public class ViewManagement {
     for(PlanNode node: nodes){
       leafParentMap.put(node,root);
     }
-
-
     //TODO correct?
     while(!nodes.equals(Collections.emptyList())){
       List<PlanNode> nextLayer = Collections.emptyList();
@@ -105,22 +102,20 @@ public class ViewManagement {
 
     //
     for(PlanNode l : leaf){
-
       changeSource(leafParentMap.get(l),l);
     }
-
     return root;
   }
 
+  public List<View> viewMatching(String sql){
+    return null;
+  }
 
   private void changeSource(PlanNode parent, PlanNode leaf){
     //call view
     ConnectorId connectorId = new ConnectorId("memory");
-
-
     List<PlanNode> newPlanNode = new ArrayList<>();
     TableHandle targetTable = null;
-
     Map<String, ColumnHandle> columnHandles = metadata.getColumnHandles(session, targetTable);
     ImmutableList.Builder<VariableReferenceExpression> tableScanOutputsBuilder = ImmutableList.builder();
     ImmutableMap.Builder<VariableReferenceExpression, ColumnHandle> variableToColumnHandle = ImmutableMap.builder();
@@ -136,11 +131,11 @@ public class ViewManagement {
     parent.replaceChildren(newPlanNode);
   }
 
-  public void setViewManagement(Session session, Metadata metadata, PlanVariableAllocator variableAllocator) {
+ void setViewManagement(Session session, Metadata metadata,
+                                PlanVariableAllocator variableAllocator) {
     this.session = session;
     this.metadata = metadata;
     this.variableAllocator = variableAllocator;
     //this.analysis = null;
   }
-
 }

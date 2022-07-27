@@ -108,4 +108,9 @@ public final class JdbcTableHandle
     {
         return Joiner.on(":").useForNull("null").join(connectorId, schemaTableName, catalogName, schemaName, tableName);
     }
+
+    @Override
+    public String getBaseName() {
+        return tableName;
+    }
 }

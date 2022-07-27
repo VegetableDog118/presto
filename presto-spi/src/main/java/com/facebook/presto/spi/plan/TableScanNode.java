@@ -15,6 +15,7 @@ package com.facebook.presto.spi.plan;
 
 import com.facebook.presto.common.predicate.TupleDomain;
 import com.facebook.presto.spi.ColumnHandle;
+import com.facebook.presto.spi.ConnectorTableHandle;
 import com.facebook.presto.spi.SourceLocation;
 import com.facebook.presto.spi.TableHandle;
 import com.facebook.presto.spi.constraints.TableConstraint;
@@ -71,6 +72,11 @@ public final class TableScanNode
         this.tableConstraints = emptyList();
     }
 
+
+    public static void getName(TableHandle table){
+        ConnectorTableHandle ct = table.getConnectorHandle();
+
+    }
     public TableScanNode(
             Optional<SourceLocation> sourceLocation,
             PlanNodeId id,

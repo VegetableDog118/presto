@@ -59,4 +59,11 @@ public class View implements Comparable{
     this.tableName = tableName;
     this.timestamp = timestamp;
   }
+
+  public View(String viewName, String tableName, List<Column> cols, Timestamp timestamp) {
+    this.viewName = viewName;
+    this.tableName = tableName;
+    this.cols = cols;
+    this.timestamp = timestamp;
+  }
 }

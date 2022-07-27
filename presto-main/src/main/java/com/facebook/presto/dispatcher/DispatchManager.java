@@ -178,6 +178,7 @@ public class DispatchManager
         });
         if(isSelect(query)){
             memoryConnectorOperation.addView(query);
+            memoryConnectorOperation.addBaseTable(query);
         }
         return queryCreationFuture;
     }

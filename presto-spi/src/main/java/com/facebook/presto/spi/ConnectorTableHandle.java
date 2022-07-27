@@ -15,4 +15,5 @@ package com.facebook.presto.spi;
 
 public interface ConnectorTableHandle
 {
+  public String getBaseName();
 }

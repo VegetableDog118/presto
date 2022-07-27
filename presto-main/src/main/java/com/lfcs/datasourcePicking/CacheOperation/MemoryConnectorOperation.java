@@ -3,18 +3,26 @@ package com.lfcs.datasourcePicking.CacheOperation;
 import com.facebook.presto.sql.tree.CurrentTime;
 import com.lfcs.datasourcePicking.ViewManagement.View;
 import com.lfcs.datasourcePicking.ViewManagement.ViewManagement;
-
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.SelectItemVisitorAdapter;
 import net.sf.jsqlparser.util.TablesNamesFinder;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static net.sf.jsqlparser.parser.feature.Feature.select;
 
 /*
 insert delete select update memory connector
@@ -66,7 +74,7 @@ public class MemoryConnectorOperation {
     try {
       Statement statement = connection.createStatement();
       // TODO: here we check if the size of the memory is enough
-      if(true){
+      if(false){
         View view = evictView();
         viewManagement.dropViews(view);
         deleteView(view);
@@ -81,6 +89,8 @@ public class MemoryConnectorOperation {
       e.printStackTrace();
     }
   }
+
+
 
   /**
    * If the capacity is not enough, we should evict this view
@@ -101,6 +111,15 @@ public class MemoryConnectorOperation {
   }
 
 
+  public void addBaseTable(String query){
+    List<String> tables = resolveBaseTable(query);
+    for(String t : tables){
+      String sql = "select * from " + t + ";";
+      addView(sql);
+    }
+  }
+
+
 
   private SqlCommand generateSqlCommand(String query){
     String viewName = generateViewName(query);
@@ -110,10 +129,14 @@ public class MemoryConnectorOperation {
     String select = query;
     String command = create + "AS" + select;
     Timestamp ts = new Timestamp(System.currentTimeMillis());
+
+    //resolve columns
+    List<String> cols = resolveCol(query);
     View view = new View(viewName,tableName,ts);
     SqlCommand sqlCommand = new SqlCommand(command,create,query,view);
     return sqlCommand;
   }
+
 
   /**
    * Select a , b, c from t1 join t2 on
@@ -127,6 +150,16 @@ public class MemoryConnectorOperation {
 
 
   private String generateViewName(String sql){
+
+    List<String> tableList = resolveBaseTable(sql);
+    StringBuilder stringBuilderBuilder = new StringBuilder();
+    for(String table : tableList){
+      stringBuilderBuilder.append(table);
+    }
+    return "Table-"+stringBuilderBuilder;
+  }
+
+  private List<String> resolveBaseTable(String sql){
     net.sf.jsqlparser.statement.Statement statement = null;
     try {
       statement = CCJSqlParserUtil.parse(sql);
@@ -136,20 +169,26 @@ public class MemoryConnectorOperation {
     Select selectStatement = (Select) statement;
     TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
     List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
+    return tableList;
+  }
 
-    String[] str = sql.split(" ");
-    StringBuilder stringBuilderBuilder = new StringBuilder();
-    boolean add = false;
-    for(String s : str){
-      if(s.toLowerCase().equals("select")){
-        add = true;
-      }else if(s.toLowerCase().equals("from")){
-        add = false;
-      }
-      if(add){
-        stringBuilderBuilder.append(s);
-      }
+
+  private List<String> resolveCol(String sql){
+    Map<String, Expression> map = new HashMap<>();
+    Select stmt = null;
+    try {
+      stmt = (Select) CCJSqlParserUtil.parse(sql);
+    } catch (JSQLParserException e) {
+      e.printStackTrace();
     }
-    return "Table-"+stringBuilderBuilder.toString();
+    for (SelectItem selectItem : ((PlainSelect)stmt.getSelectBody()).getSelectItems()) {
+      selectItem.accept(new SelectItemVisitorAdapter() {
+        @Override
+        public void visit(SelectExpressionItem item) {
+          map.put(item.getAlias().getName(), item.getExpression());
+        }
+      });
+    }
+    return new ArrayList<>(map.keySet());
   }
 }

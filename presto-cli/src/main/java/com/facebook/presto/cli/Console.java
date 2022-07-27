@@ -159,7 +159,6 @@ public class Console
         if (defaultPassword != null) {
             return defaultPassword;
         }
-
         java.io.Console console = System.console();
         if (console == null) {
             throw new RuntimeException("No console from which to read password");
@@ -295,7 +294,7 @@ public class Console
     private static boolean process(QueryRunner queryRunner, String sql, OutputFormat outputFormat, Runnable schemaChanged, boolean interactive)
     {
         String finalSql;
-        try {
+        try {`
             finalSql = preprocessQuery(
                     Optional.ofNullable(queryRunner.getSession().getCatalog()),
                     Optional.ofNullable(queryRunner.getSession().getSchema()),
